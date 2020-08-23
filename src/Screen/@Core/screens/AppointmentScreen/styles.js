@@ -1,7 +1,7 @@
 import {StyleSheet,Dimensions} from 'react-native';
 import {moderateScale} from 'react-native-size-matters';
 import Config from '@Config/default';
-const {Colors:{Secondary,LightGrey}} = Config;
+const {Colors:{Secondary,LightGrey,Primary}} = Config;
 const width = Dimensions.get('window').width;
 export const styles = StyleSheet.create({
     upper:{
@@ -17,8 +17,7 @@ export const styles = StyleSheet.create({
     calendarcontainer:{
         justifyContent:'center',
         alignItems:'center',
-        width:width-moderateScale(50),
-        marginTop:moderateScale(-75),
+        width:width,
         backgroundColor:'white'
 
     },
@@ -49,9 +48,9 @@ export const styles = StyleSheet.create({
     },
     name:{
         fontSize:moderateScale(16),
-        fontWeight:'700',
+        fontWeight:'500',
         letterSpacing:2,
-        opacity:0.8 ,
+        color:'white'
         
        
     },

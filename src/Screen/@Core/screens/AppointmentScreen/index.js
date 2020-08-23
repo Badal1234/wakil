@@ -7,27 +7,28 @@ import {styles} from './styles';
 import {Calendar} from 'react-native-calendars';
 import { ScrollView } from 'react-native-gesture-handler';
 import PropTypes from 'prop-types';
-import Modal from 'react-native-modal'
+import Modal from 'react-native-modal';
 import UCButton from '../../../../@Components/UCButton';
 import { moderateScale } from 'react-native-size-matters';
-import Swipeable from 'react-native-swipeable';
+import * as caseActions from '@Actions/caseAction';
+import { connect } from 'react-redux';
 
 const {Colors:{Primary,Secondary}} = Config;
+const month = new Date().getMonth().toString().padStart(2,'0')
 
-export const AppointmentScreen = ({navigation,caseLoad,caseData}) =>{
-
-
-    const [appointDate,setAppointDate] = useState(`${new Date().getFullYear}-${new Date().getMonth()}-${new Date().getDate()}`);
+export const AppointmentScreen = ({navigation,caseLoad,caseData,state}) =>{
+    const [appointDate,setAppointDate] = useState(`${new Date().getFullYear()}-${month}-${new Date().getDate()}`);
     const [showCalender,setCalender] = useState(false);
     const [presentDate, setPresentDate] = useState('');
     const [maxDate,setMaxDate] = useState('');
-    const [cases,setCases] = useState(caseData)
-    const [case_no,set_no] = useState()
+    const [cases,setCases] = useState(caseData);
+    const [case_no,set_no] = useState();
 
     useEffect((data)=>{
-        caseLoad({date:appointDate,case_no:case_no})
+        caseLoad({date:appointDate,case_no:case_no});
         
-    },[])
+    },[appointDate,case_no]);
+    console.log(caseData)
 
     const data = [
         {
@@ -58,33 +59,43 @@ export const AppointmentScreen = ({navigation,caseLoad,caseData}) =>{
     ];
     const leftContent = <Text>Pull to activate</Text>;
 
-const rightButtons = [
-  <TouchableHighlight><Text>Button 1</Text></TouchableHighlight>,
-  <TouchableHighlight><Text>Button 2</Text></TouchableHighlight>
-];
+    const rightButtons = [
+        <TouchableHighlight><Text>Button 1</Text></TouchableHighlight>,
+        <TouchableHighlight><Text>Button 2</Text></TouchableHighlight>
+    ];
 
 
     const body = (item) =>{
+        console.log(item)
         return(
-            <TouchableOpacity onPress={()=>navigation.navigate('PatientScreen')} style={styles.card}>
+            <TouchableOpacity onPress={()=>navigation.navigate('PatientScreen',{case:item})} style={styles.card}>
                 <View style={styles.profile}>
                     <View style={{flexDirection:'row',marginTop:moderateScale(10)}}>
-                    <Text style={styles.name}>
-                       case  
-                    </Text>
-                    <View style={styles.bar}></View>
-                    <Text style={styles.name}>
-                        {item.name}
-                    </Text>
+                        <Text style={styles.name}>
+                       case - No  
+                        </Text>
+                        <View style={styles.bar}></View>
+                        <Text style={styles.name}>
+                            {item.case_no}
+                        </Text>
                     </View>
                     <View style={{flexDirection:'row',marginTop:moderateScale(10)}}>
-                    <Text style={styles.name}>
+                        <Text style={styles.name}>
+                       court_name  
+                        </Text>
+                        <View style={styles.bar}></View>
+                        <Text style={styles.name}>
+                            {item.court_name}
+                        </Text>
+                    </View>
+                    <View style={{flexDirection:'row',marginTop:moderateScale(10)}}>
+                        <Text style={styles.name}>
                        reference  
-                    </Text>
-                    <View style={styles.bar}></View>
-                    <Text style={styles.name}>
-                        {item.ref}
-                    </Text>
+                        </Text>
+                        <View style={styles.bar}></View>
+                        <Text style={styles.name}>
+                            {item.ref}
+                        </Text>
                     </View>
 
                 </View>
@@ -107,73 +118,73 @@ const rightButtons = [
 
             </LinearGradient>
             <View style={styles.lower}>
-                <TouchableOpacity style={styles.chooseDate}>
+                <TouchableOpacity onPress={()=>setCalender(true)} style={styles.chooseDate}>
                     <Text style={styles.name}>
-                        {`${appointDate.getDate()}-${appointDate.getMonth()}-${appointDate.getFullYear()}`}
+                        {`${appointDate}`}
                     </Text>
                 </TouchableOpacity>
                 <View>
-                    <TextInput style={styles.input} placeholder={'Enter case number if want'} onChangeText={(text)=>{set_no(text)}}/>
+                    <TextInput onChangeText={(text)=>{set_no(text);}} placeholder={'Enter case number if want'} style={styles.input} />
                 </View>
                 <View style={{width:'90%',marginTop:moderateScale(10)}}>
-                <UCButton buttontext={'Search'} />
-            </View>
+                    <UCButton buttontext={'Search'} />
+                </View>
 
                 
-            <Modal                 
-               animationIn={'slideInDown'}
-                animationInTiming={350}
-                animationOut={'slideOutUp'}
-                dismissable={true}
-                hasBackdrop={true}
-                hideModalContentWhileAnimating={true}
-                isVisible={showCalender}
-                onBackdropPress={()=>setCalender(false)}
-                style={{padding:0,margin:0,position:'absolute',top:0}}
-                useNativeDriver={true}>
-                <View style={styles.lower}>
-                <View style={styles.calendarcontainer}>
-                    <Calendar
-                        current={appointDate}
-                        markedDates={{
-                            [appointDate]: {
-                                customStyles: {
-                                    container: {
-                                        backgroundColor: '#fff'
+                <Modal                 
+                    animationIn={'slideInDown'}
+                    animationInTiming={350}
+                    animationOut={'slideOutUp'}
+                    dismissable={true}
+                    hasBackdrop={true}
+                    hideModalContentWhileAnimating={true}
+                    isVisible={showCalender}
+                    onBackdropPress={()=>setCalender(false)}
+                    style={{padding:0,margin:0,position:'absolute',top:0}}
+                    useNativeDriver={true}>
+                    <View style={styles.lower}>
+                        <View style={styles.calendarcontainer}>
+                            <Calendar
+                                current={appointDate}
+                                markedDates={{
+                                    [appointDate]: {
+                                        customStyles: {
+                                            container: {
+                                                backgroundColor: '#fff'
+                                            },
+                                            text: {
+                                                color: Primary,
+                                                fontWeight: 'bold'
+                                            },
+                                        },
                                     },
-                                    text: {
-                                        color: Primary,
-                                        fontWeight: 'bold'
-                                    },
-                                },
-                            },
-                        }}
-                        markingType={'custom'}
-                        maxDate={maxDate}
-                        minDate={presentDate}
-                        onDayPress={(day) => {setAppointDate(day.dateString);}}
-                        style={styles.calender}
-                        theme={{
-                            calendarBackground:'#00000000',
-                            textSectionTitleColor: 'black',
-                            todayTextColor:Secondary,
-                            monthFormat:'yyyy DD MM',
-                            selectedDayTextColor:Primary,
-                            selectedDayBackgroundColor:Secondary,
-                            dayTextColor:'black',
-                            monthTextColor: 'black',
-                            arrowColor: 'black',
-                            textDisabledColor:'black',
-                        }}
-                    />
-                </View>
-            </View>
+                                }}
+                                markingType={'custom'}
+                                maxDate={maxDate}
+                                minDate={presentDate}
+                                onDayPress={(day) => {setAppointDate(day.dateString);}}
+                                style={styles.calender}
+                                theme={{
+                                    calendarBackground:'#00000000',
+                                    textSectionTitleColor: 'black',
+                                    todayTextColor:Secondary,
+                                    monthFormat:'yyyy DD MM',
+                                    selectedDayTextColor:Primary,
+                                    selectedDayBackgroundColor:Secondary,
+                                    dayTextColor:'black',
+                                    monthTextColor: 'black',
+                                    arrowColor: 'black',
+                                    textDisabledColor:'black',
+                                }}
+                            />
+                        </View>
+                    </View>
 
 
-            </Modal>
+                </Modal>
                 <ScrollView contentContainerStyle={styles.list} showsVerticalScrollIndicator={false} >
                     {
-                        cases.map(item=>(body(item)))
+                        caseData.map(item=>(body(item)))
                     }
                 </ScrollView>
 
@@ -191,6 +202,7 @@ AppointmentScreen.propTypes = {
 
 const  mapStateToProps = (state) => {
     return {
+        state: state,
         caseData: state.case.caseData,
         isLoading: state.case.isLoading,
         isError: state.case.isError

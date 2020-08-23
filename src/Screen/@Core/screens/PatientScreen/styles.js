@@ -6,7 +6,7 @@ import {StyleSheet,Dimensions} from 'react-native';
 import { scale, moderateScale } from 'react-native-size-matters';
 import Config from '@Config/default';
 
-const {Colors:{LightGrey}} = Config;
+const {Colors:{LightGrey,DarkGrey}} = Config;
 const WIDTH = Dimensions.get('window').width;
 
 export const styles = StyleSheet.create({
@@ -72,8 +72,8 @@ export const styles = StyleSheet.create({
         color:LightGrey
     },
     descText:{
-        color:LightGrey,marginTop:moderateScale(10),
-        fontSize:moderateScale(12)
+        color:DarkGrey,marginTop:moderateScale(10),
+        fontSize:moderateScale(16),marginLeft:moderateScale(20),letterSpacing:1
     },
     action:{
         height:scale(100),width:WIDTH,backgroundColor:'#fff',

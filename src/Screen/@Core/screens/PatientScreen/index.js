@@ -13,7 +13,9 @@ import Modal from 'react-native-modal';
 import ScreenHeader from '@Components/ScreenHeader';
 import ImagePicker from 'react-native-image-picker';
 import {Calendar} from 'react-native-calendars';
-
+import * as caseActions from '@Actions/caseAction';
+import { connect } from 'react-redux';
+import {CaseDetails} from './../../../../Api/case'
 const {Colors:{Primary,Secondary,BorderGrey,LightGrey}} = Config;
 
 const PatientScreen = ({...props}) =>{
@@ -22,7 +24,7 @@ const PatientScreen = ({...props}) =>{
     const [presentDate, setPresentDate] = useState('');
     const [maxDate,setMaxDate] = useState('');
 
-    const {navigation} = props;
+    const {navigation,caseDelete,caseForward,getCaseDetails,caseDetails} = props
     const [showInfo,setShowInfo] = useState(false);
     const [showAddress, setShowAddress] = useState(false);
     const [showModal,setShowModal] = useState(false);
@@ -30,13 +32,20 @@ const PatientScreen = ({...props}) =>{
     const [showPrescription,setShowPrescription] = useState(false);
     const [upload,set_upload] = useState(false);
     const [uri,set_uri] = useState(null);
-
+    const CaseData = navigation.getParam('case')
+    const {case_id,case_no,date,vs,court_name} = CaseData
+    console.log('case',CaseData)
     const checkNavigation = (route) =>{
         if(route === 'Info') setShowInfo(!showInfo);
         else if(route === 'Address') setShowAddress(!showAddress);
         else if(route ==='Prescription')  setShowPrescription(!showPrescription);
         if(route) navigation.navigate(route);
     };
+
+    useEffect(()=>{
+        getCaseDetails({case_id:case_id})
+
+    },[])
 
     const makeACall = (phoneNumber) =>{
         Linking.openURL(`tel:${phoneNumber}`);
@@ -54,10 +63,28 @@ const PatientScreen = ({...props}) =>{
         },
     };
 
- 
+    const CaseDelete = () =>{
 
+        caseDelete({date:date,case_id:case_id})
 
+    }
 
+    const CaseForward = () =>{
+        setCalender(true)
+    }
+
+    const update = () => {
+        const month = new Date().getMonth().toString().padStart(2,'0')
+        caseForward({
+            date:`${new Date().getFullYear()}-${month}-${new Date().getDate()}`,
+            case_id:case_id,
+            case_no:case_no,
+            court_name:court_name,
+            reference:CaseDetails.date
+        })
+
+    }
+    console.log('details',caseDetails)
     const renderInfoBox = (icon,content,route) =>{
         return(
             <TouchableOpacity onPress={()=>checkNavigation(route)} style={styles.contentBox}>
@@ -80,7 +107,7 @@ const PatientScreen = ({...props}) =>{
                 <Display enable={showInfo && route === 'Info'}>
                     <View>
                         <Text style={styles.descText}>
-                            asdjasjdkjasdjaskdjaskjdjasdkjhsajdhasjkdjkashdjhasjkdhajkdhakjhdjkahdkjahdkhakjdhakjdhajksdha
+                            {caseDetails.vs.vs1} vs {caseDetails.vs.vs2}
                         </Text>
                     </View>
                 </Display>
@@ -104,18 +131,18 @@ const PatientScreen = ({...props}) =>{
             <ScrollView showsVerticalScrollIndicator={false} style={styles.container}>
                 <View style={styles.upperContainer}>
                     <View style={{justifyContent:'center',alignItems:'center',paddingTop:moderateScale(20)}}>
-                        <Text style={styles.doctorName}>Case Number</Text>
+    <Text style={styles.doctorName}>{CaseData.case_no}</Text>
                         
                         <View style={{flexDirection:'row',marginTop:moderateScale(10)}}>
                             <View style={styles.callBox}>
-                                <TouchableOpacity onPress={()=>makeACall('68849493')} style={styles.callButton}>
+                                <TouchableOpacity onPress={()=>CaseDelete()} style={styles.callButton}>
                                     <Icon color={Primary} name={'trash'}  size={20}  />
                                     
                                 </TouchableOpacity>
                                 <Text>Delete</Text>
                             </View>
                             <View style={styles.locationBox}>
-                                <TouchableOpacity onPress={()=>setCalender(true)} style={[styles.callButton,{backgroundColor:'#fff'}]}>
+                                <TouchableOpacity onPress={CaseForward} style={[styles.callButton,{backgroundColor:'#fff'}]}>
                                     <Icon color={Primary} name={'long-arrow-alt-right'} size={20} />
                                 </TouchableOpacity>
                                 <Text>Forward Date</Text>
@@ -137,61 +164,61 @@ const PatientScreen = ({...props}) =>{
                     
                 </View>
                 <View style={{paddingHorizontal:20}}>
-                    <UCButton buttontext={'Update'} onPress={{}} />
+                    <UCButton buttontext={'Update'} onPress={update} />
 
                 </View>
                       
-            <Modal                 
-               animationIn={'slideInDown'}
-                animationInTiming={350}
-                animationOut={'slideOutUp'}
-                dismissable={true}
-                hasBackdrop={true}
-                hideModalContentWhileAnimating={true}
-                isVisible={showCalender}
-                onBackdropPress={()=>setCalender(false)}
-                style={{padding:0,margin:0,position:'absolute',top:0}}
-                useNativeDriver={true}>
-                <View style={styles.lower}>
-                <View style={styles.calendarcontainer}>
-                    <Calendar
-                        current={appointDate}
-                        markedDates={{
-                            [appointDate]: {
-                                customStyles: {
-                                    container: {
-                                        backgroundColor: '#fff'
+                <Modal                 
+                    animationIn={'slideInDown'}
+                    animationInTiming={350}
+                    animationOut={'slideOutUp'}
+                    dismissable={true}
+                    hasBackdrop={true}
+                    hideModalContentWhileAnimating={true}
+                    isVisible={showCalender}
+                    onBackdropPress={()=>setCalender(false)}
+                    style={{padding:0,margin:0,position:'absolute',top:0}}
+                    useNativeDriver={true}>
+                    <View style={styles.lower}>
+                        <View style={styles.calendarcontainer}>
+                            <Calendar
+                                current={appointDate}
+                                markedDates={{
+                                    [appointDate]: {
+                                        customStyles: {
+                                            container: {
+                                                backgroundColor: '#fff'
+                                            },
+                                            text: {
+                                                color: Primary,
+                                                fontWeight: 'bold'
+                                            },
+                                        },
                                     },
-                                    text: {
-                                        color: Primary,
-                                        fontWeight: 'bold'
-                                    },
-                                },
-                            },
-                        }}
-                        markingType={'custom'}
-                        maxDate={maxDate}
-                        minDate={presentDate}
-                        onDayPress={(day) => {setAppointDate(day.dateString);}}
-                        style={styles.calender}
-                        theme={{
-                            calendarBackground:'#00000000',
-                            textSectionTitleColor: 'black',
-                            todayTextColor:Secondary,
-                            monthFormat:'yyyy DD MM',
-                            selectedDayTextColor:Primary,
-                            selectedDayBackgroundColor:Secondary,
-                            dayTextColor:'black',
-                            monthTextColor: 'black',
-                            arrowColor: 'black',
-                            textDisabledColor:'black',
-                        }}
-                    />
-                </View>
-            </View>
+                                }}
+                                markingType={'custom'}
+                                maxDate={maxDate}
+                                minDate={presentDate}
+                                onDayPress={(day) => {setAppointDate(day.dateString);}}
+                                style={styles.calender}
+                                theme={{
+                                    calendarBackground:'#00000000',
+                                    textSectionTitleColor: 'black',
+                                    todayTextColor:Secondary,
+                                    monthFormat:'yyyy DD MM',
+                                    selectedDayTextColor:Primary,
+                                    selectedDayBackgroundColor:Secondary,
+                                    dayTextColor:'black',
+                                    monthTextColor: 'black',
+                                    arrowColor: 'black',
+                                    textDisabledColor:'black',
+                                }}
+                            />
+                        </View>
+                    </View>
 
 
-            </Modal>
+                </Modal>
                 
             </ScrollView>
         </SafeAreaView>
@@ -203,4 +230,26 @@ PatientScreen.propTypes = {
     navigation:PropTypes.object.isRequired,
 };
 
-export default PatientScreen;
+const  mapStateToProps = (state) => {
+    return {
+        state: state,
+        caseData: state.case.caseData,
+        isLoading: state.case.isLoading,
+        isError: state.case.isError,
+        caseDetails :  state.case.caseDetails
+    };
+};
+
+const  mapDispatchToProp =(dispatch)=>({
+    caseDelete:(userData) =>
+        dispatch(caseActions.CaseDelete(userData)),
+    caseForward:(userData)=>
+        dispatch(caseActions.caseForward(userData)),
+    getCaseDetails:(userData)=>{
+        dispatch(caseActions.getCaseDetails(userData))
+    }    
+});
+
+
+
+export default connect(mapStateToProps, mapDispatchToProp)(PatientScreen);

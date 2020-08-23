@@ -12,7 +12,6 @@ import UCButton from '../../../../@Components/UCButton';
 import Modal from 'react-native-modal'
 import * as caseActions from '@Actions/caseAction';
 import { connect } from 'react-redux';
-import { set } from 'react-native-reanimated';
 
 const {Colors:{Primary,Secondary,LightGrey}} = Config;
 
