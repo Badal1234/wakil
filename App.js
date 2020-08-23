@@ -16,11 +16,7 @@ import {persistStore} from 'redux-persist';
 export const reduxPersistStore = persistStore(reduxStore); 
 import config from './aws-exports';
 import Amplify from 'aws-amplify';
-
-Amplify.configure(config)
-
-
-
+Amplify.configure(config);
 const  App = ()=>{
     return(
         <Provider store={reduxStore}>
